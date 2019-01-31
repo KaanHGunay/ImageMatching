@@ -87,16 +87,30 @@ def delete_same_photos(photos):
 # fotoğrafı karşılaştırarak çözünürlüğü yüksek olanı tutar. Diğer fotoğrafı ise siler.
 def compare_a_photo_in_path(photo, path):
     photos = get_all_photos(path)
+    is_same_photo_exist = False
+
     if len(photos) > 0:
         for ph in photos:
             if compare_photos(photo, ph):
                 if compare_photos_resolutions(photo, ph) == ph:
-                    delete_low_res_photo(ph)
-                    copy(photo, os.getcwd())
-                    print('Fotoğraf başarı ile eklenmiştir.')
+                    replace_high_res_photo(photo, ph)
+                    print('Aynı fotoğrafın daha yüksek çözünürlüğü hali eklenmiştir.')
+                    is_same_photo_exist = True
                 else:
                     print('Eklemeye çalıştığınısz fotoğrafın aynısı veya daha yüksek çözünürlüklü hali bulunması '
                           'nedeniyle fotoğraf eklenmemiştir.')
-                break
-    else:
-        print('Belirtilen yolda herhangi bir fotoğraf bulunamamıştır!')
+                    is_same_photo_exist = True
+        return is_same_photo_exist
+    return is_same_photo_exist
+
+
+# Yüksek çözünürlüklü fotoğraf ile düşük çözünürlüklü fotoğrafı değiştirme
+def replace_high_res_photo(photo, ph):
+    delete_low_res_photo(ph)
+    copy(photo, os.getcwd())
+
+
+# Yeni fotoğraf ekleme
+def upload_new_photo(photo, path):
+    if not compare_a_photo_in_path(photo, path):
+        copy(photo, path)

@@ -3,3 +3,7 @@ __pycache__/ImageMatching.cpython-37.pyc
 1.jpg
 2.jpeg
 9.jpg
+.idea/*
+__pycache__/*
+3.jpg
+4.jpg
