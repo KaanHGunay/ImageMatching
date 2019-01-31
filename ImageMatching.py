@@ -86,8 +86,9 @@ def delete_same_photos(photos):
 # Verilen fotoğrafı klasörde bulunan tüm fotoğraflar ile karşılaştırır. Aynı fotoğrafın bulunması durumunda iki
 # fotoğrafı karşılaştırarak çözünürlüğü yüksek olanı tutar. Diğer fotoğrafı ise siler.
 def compare_a_photo_in_path(photo, path):
-    if len(get_all_photos(path)) > 0:
-        for ph in get_all_photos(path):
+    photos = get_all_photos(path)
+    if len(photos) > 0:
+        for ph in photos:
             if compare_photos(photo, ph):
                 if compare_photos_resolutions(photo, ph) == ph:
                     delete_low_res_photo(ph)
