@@ -58,7 +58,7 @@ def get_all_photos(path):
         ext = os.path.splitext(f)[1]
         if ext.lower() not in valid_images:
             continue
-        images.append(f)
+        images.append(path + '\\' + f)
     return images
 
 
@@ -92,25 +92,44 @@ def compare_a_photo_in_path(photo, path):
     if len(photos) > 0:
         for ph in photos:
             if compare_photos(photo, ph):
+                is_same_photo_exist = True
                 if compare_photos_resolutions(photo, ph) == ph:
-                    replace_high_res_photo(photo, ph)
+                    replace_high_res_photo(photo, ph, path)
                     print('Aynı fotoğrafın daha yüksek çözünürlüğü hali eklenmiştir.')
-                    is_same_photo_exist = True
                 else:
                     print('Eklemeye çalıştığınısz fotoğrafın aynısı veya daha yüksek çözünürlüklü hali bulunması '
                           'nedeniyle fotoğraf eklenmemiştir.')
-                    is_same_photo_exist = True
         return is_same_photo_exist
     return is_same_photo_exist
 
 
 # Yüksek çözünürlüklü fotoğraf ile düşük çözünürlüklü fotoğrafı değiştirme
-def replace_high_res_photo(photo, ph):
+def replace_high_res_photo(photo, ph, path):
     delete_low_res_photo(ph)
-    copy(photo, os.getcwd())
+    copy(photo, path)
 
 
 # Yeni fotoğraf ekleme
 def upload_new_photo(photo, path):
     if not compare_a_photo_in_path(photo, path):
         copy(photo, path)
+
+
+# Klasörde bulunan tüm fotoğrafların incelenerek farklı olan fotoğrafların belirtilen yola eklenmesi
+def upload_all_photos(src, dest):
+    photos = find_dif_photos(src)
+
+    for photo in photos:
+        upload_new_photo(photo, dest)
+
+
+# Klasörde bulunan farklı fotoğrafların tespit edilmesi
+def find_dif_photos(path):
+    dif_photos = []
+    same_photos = compare_all_photos_in_path(path)
+    all_photos = get_all_photos(path)
+
+    for photo in all_photos:
+        if photo not in same_photos:
+            dif_photos.append(photo)
+    return dif_photos
