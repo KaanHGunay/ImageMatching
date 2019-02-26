@@ -67,11 +67,9 @@ def get_all_photos(path):
 def compare_all_photos_in_path(path):
     photos = get_all_photos(path)
     delete_item = set()
-    lenphoto = len(photos)
     print('Karşılaştırma işlemi başlatılıyor...')
 
     for i, photo in enumerate(photos):
-        # print('Kontrol durumu', i+1, '/', lenphoto, end='\n')
         other_photos = photos[i + 1:]
         lenothers = len(other_photos)
         index = 1
@@ -82,10 +80,11 @@ def compare_all_photos_in_path(path):
                     img = compare_photos_resolutions(photo, ph)
                     print(img, 'fotoğrafının aynısı bulunmaktadır.')
                     delete_item.add(img)
+
                 yuzde = (100 * index / lenothers)
-                print('{0} / {1}. fotoğrafın karşılaştırma durumu: \t%{2:.2f}'.format((i + 1), lenphoto, yuzde), end='\r')
+                print('{0} / {1}. fotoğrafın karşılaştırma durumu: \t%{2:.2f}'.format((i + 1), len(photos), yuzde), end='\r')
                 index += 1
-        # print('\n')
+
     print('Silinecek', len(delete_item), 'adet fotoğraf tespit edildi.')
     return delete_item
 
@@ -116,9 +115,9 @@ def compare_a_photo_in_path(photo, path):
 
 
 # Yüksek çözünürlüklü fotoğraf ile düşük çözünürlüklü fotoğrafı değiştirme
-def replace_high_res_photo(photo, ph, path):
-    delete_low_res_photo(ph)
-    copy(photo, path)
+def replace_high_res_photo(high_res_photo, low_res_photo, path):
+    delete_low_res_photo(low_res_photo)
+    copy(high_res_photo, path)
 
 
 # Yeni fotoğraf ekleme
@@ -150,3 +149,56 @@ def find_diff_photos(path):
             diff_photos.append(photo)
     print(len(diff_photos), 'farklı tespit edildi')
     return diff_photos
+
+
+def compare_photos_in_path(src, dest):
+    photos = get_all_photos(src)  # Verilen yoldaki tüm fotoğrafları al
+    print('{} fotoğraf bulundu.'.format(len(photos)))
+    dest_photos = get_all_photos(dest)
+
+    for i, photo in enumerate(photos):
+        other_photos = photos[i + 1:]  # Kontrol edilen fotoğraftan sonraki tüm fotoğraflar al
+        upload_status = True
+        # index = 1
+
+        if len(other_photos) > 0:  # Karşılaştırılacak olan fotoğrafların olduğunu kontrol et
+            for ph in other_photos:  # Karşılaştırılacak tüm fotoğrafları alarak kontrole başla
+                if compare_photos(photo, ph):  # İki fotoğrafın aynı olup olmadığını kontrol et
+                    img = compare_photos_resolutions(photo, ph)  # Düşük çözünürlüklü olanı fotoğrafı al
+                    if img == ph:
+                        photos.remove(ph)  # Aktarılmayacak olan fotoğrafı sil
+                    else:
+                        upload_status = False
+                        continue
+                        # print(i, 'upload status', upload_status)
+            if upload_status:
+                upload_a_photo(photo, dest, dest_photos)
+                print('Fotoğraf eklendi')
+
+        else:
+            upload_a_photo(photo, dest, dest_photos)
+
+        print('{}/{}'.format(i, len(photos)))
+        # yuzde = (100 * (i+1) / len(other_photos))
+        # print('{0} / {1}. fotoğrafın karşılaştırma durumu: \t%{2:.2f}'.format((i + 1), len(photos), yuzde), end='\r')
+
+def compare_a_photo_in_list(photo, list:list):
+    photos = list
+    is_same_photo_exist = False
+
+    if len(photos) > 0:
+        for ph in photos:
+            if compare_photos(photo, ph):
+                is_same_photo_exist = True
+                if compare_photos_resolutions(photo, ph) == ph:
+                    list.remove(photo)
+                    is_same_photo_exist = False
+                    return is_same_photo_exist
+                else:
+                    print('Aynı fotoğraf : {0}'.format(photo))
+        return is_same_photo_exist
+    return is_same_photo_exist
+
+def upload_a_photo(photo, path, list):
+    if not compare_a_photo_in_list(photo, list):
+        copy(photo, path)
