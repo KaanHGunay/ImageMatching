@@ -59,22 +59,35 @@ def get_all_photos(path):
         if ext.lower() not in valid_images:
             continue
         images.append(path + '\\' + f)
+    # print(len(images), 'adet fotoğraf tespit edildi.')
     return images
 
 
 # Verilen yolda bulunan tüm fotoğrafların karşılaştıralarak tüm aynı fotoğrafların tespit edilmesi
 def compare_all_photos_in_path(path):
     photos = get_all_photos(path)
-    delete_item = []
+    delete_item = set()
+    lenphoto = len(photos)
+    print('Karşılaştırma işlemi başlatılıyor...')
 
     for i, photo in enumerate(photos):
+        # print('Kontrol durumu', i+1, '/', lenphoto, end='\n')
         other_photos = photos[i + 1:]
+        lenothers = len(other_photos)
+        index = 1
 
         if len(other_photos) > 0:
             for ph in other_photos:
                 if compare_photos(photo, ph):
-                    delete_item.append(compare_photos_resolutions(photo, ph))
-    return set(delete_item)
+                    img = compare_photos_resolutions(photo, ph)
+                    print(img, 'fotoğrafının aynısı bulunmaktadır.')
+                    delete_item.add(img)
+                yuzde = (100 * index / lenothers)
+                print('{0} / {1}. fotoğrafın karşılaştırma durumu: \t%{2:.2f}'.format((i + 1), lenphoto, yuzde), end='\r')
+                index += 1
+        # print('\n')
+    print('Silinecek', len(delete_item), 'adet fotoğraf tespit edildi.')
+    return delete_item
 
 
 # Verilen tüm fotoğrafların silinmesi
@@ -97,8 +110,7 @@ def compare_a_photo_in_path(photo, path):
                     replace_high_res_photo(photo, ph, path)
                     print('Aynı fotoğrafın daha yüksek çözünürlüğü hali eklenmiştir.')
                 else:
-                    print('Eklemeye çalıştığınısz fotoğrafın aynısı veya daha yüksek çözünürlüklü hali bulunması '
-                          'nedeniyle fotoğraf eklenmemiştir.')
+                    print('Aynı fotoğraf : {0}'.format(photo))
         return is_same_photo_exist
     return is_same_photo_exist
 
@@ -118,18 +130,23 @@ def upload_new_photo(photo, path):
 # Klasörde bulunan tüm fotoğrafların incelenerek farklı olan fotoğrafların belirtilen yola eklenmesi
 def upload_all_photos(src, dest):
     photos = find_diff_photos(src)
+    index = 1
+    lenphotos = len(photos)
 
     for photo in photos:
         upload_new_photo(photo, dest)
+        print('{0}/{1} fotoğraf eklendi'.format(index, lenphotos), end='\r')
+        index += 1
 
 
 # Klasörde bulunan farklı fotoğrafların tespit edilmesi
 def find_diff_photos(path):
     diff_photos = []
-    same_photos = compare_all_photos_in_path(path)
     all_photos = get_all_photos(path)
+    same_photos = compare_all_photos_in_path(path)
 
     for photo in all_photos:
         if photo not in same_photos:
             diff_photos.append(photo)
+    print(len(diff_photos), 'farklı tespit edildi')
     return diff_photos

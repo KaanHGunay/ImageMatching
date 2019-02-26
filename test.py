@@ -2,8 +2,8 @@ import ImageMatching
 
 
 if __name__ == '__main__':
-    src = r'C:\Users\silopi\Desktop\test1'
-    dest = r'C:\Users\silopi\Desktop\test2'
+    src = r'C:\Users\silopi\Desktop\a'
+    dest = r'C:\Users\silopi\Desktop\b'
     file = r'C:\Users\silopi\Desktop\test1\1.jpg'
     file2 = r'C:\Users\silopi\Desktop\test2\2.jpg'
     # print(ImageMatching.get_all_photos(src))
